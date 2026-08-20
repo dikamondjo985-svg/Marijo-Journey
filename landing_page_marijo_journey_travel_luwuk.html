@@ -1,0 +1,1577 @@
+<!DOCTYPE html>
+<html lang="id" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marijo Journey Travel - Agen Wisata Terpercaya Luwuk Banggai</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts: Plus Jakarta Sans -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Leaflet JS Map CSS & JS CDN -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+                    },
+                    colors: {
+                        ocean: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            700: '#0f766e',
+                            800: '#115e59',
+                            900: '#134e4a',
+                        },
+                        limeBrand: {
+                            400: '#a3e635',
+                            500: '#84cc16',
+                            600: '#65a30d',
+                        },
+                        amberGold: '#f59e0b'
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.4);
+        }
+        .hero-bg {
+            background: linear-gradient(rgba(15, 23, 42, 0.65), rgba(15, 23, 42, 0.85)), 
+                        url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .pulse-online {
+            box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7);
+            animation: pulse-green 2s infinite;
+        }
+        @keyframes pulse-green {
+            0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.7); }
+            70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(34, 197, 94, 0); }
+            100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+        }
+        #interactive-map {
+            z-index: 10;
+        }
+    </style>
+</head>
+<body class="font-sans bg-slate-50 text-slate-800 antialiased selection:bg-ocean-500 selection:text-white">
+
+    <!-- Top Bar: Weather & Live Sea Wave Condition Status -->
+    <div class="bg-slate-900 text-slate-300 text-xs py-2 px-4 border-b border-slate-800 hidden sm:block">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-6">
+                <span class="flex items-center gap-1.5 text-amber-400 font-medium">
+                    <i class="fa-solid fa-sun text-amber-300"></i>
+                    <span>Luwuk Hari Ini: <strong>29°C Cerah</strong></span>
+                </span>
+                <span class="flex items-center gap-1.5 text-teal-400 font-medium">
+                    <i class="fa-solid fa-water"></i>
+                    <span>Gelombang Laut Banggai: <strong>0.5m (Tenang / Aman Berlayar)</strong></span>
+                </span>
+                <span class="flex items-center gap-1.5 text-slate-400">
+                    <i class="fa-solid fa-shield-halved text-lime-400"></i>
+                    <span>CV. MARIJO JOURNEY (Kemenkumham AHU-0043939)</span>
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <!-- Currency Selector -->
+                <div class="flex items-center gap-1 text-xs">
+                    <i class="fa-solid fa-coins text-amber-400 mr-1"></i>
+                    <span class="text-slate-400">Mata Uang:</span>
+                    <select id="currency-select" onchange="changeCurrency(this.value)" class="bg-slate-800 border border-slate-700 text-white rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-ocean-500 text-xs font-semibold cursor-pointer">
+                        <option value="IDR" selected>IDR (Rp)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                    </select>
+                </div>
+                <!-- Language Selector -->
+                <div class="flex items-center gap-1 text-xs">
+                    <i class="fa-solid fa-globe text-ocean-400 mr-1"></i>
+                    <select id="lang-select" onchange="changeLanguage(this.value)" class="bg-slate-800 border border-slate-700 text-white rounded px-2 py-0.5 focus:outline-none focus:ring-1 focus:ring-ocean-500 text-xs font-semibold cursor-pointer">
+                        <option value="id" selected>🇮🇩 ID</option>
+                        <option value="en">🇬🇧 EN</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ELEMEN 3B: Promo Open Trip & Countdown Urgency Banner -->
+    <div class="bg-gradient-to-r from-rose-600 via-amber-500 to-ocean-600 text-white text-xs py-2.5 px-4 shadow-inner">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+            <div class="flex items-center gap-2">
+                <span class="bg-white text-rose-600 font-extrabold px-2 py-0.5 rounded-full text-[10px] uppercase animate-pulse">🔥 Limited Slot</span>
+                <span class="font-bold">Open Trip Danau Paisu Pok Batch Liburan Sekolah — <span class="underline decoration-wavy">Sisa 3 Seat Lagi!</span></span>
+            </div>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1 font-mono font-bold text-slate-900 bg-white/90 px-2.5 py-0.5 rounded-lg text-xs" id="countdown-timer">
+                    <span id="cd-days">00</span>d : <span id="cd-hours">00</span>h : <span id="cd-mins">00</span>m : <span id="cd-secs">00</span>s
+                </div>
+                <button onclick="openBookingModal('Open Trip Paisu Pok Batch Liburan', 1850000)" class="bg-slate-900 hover:bg-black text-white px-3 py-1 rounded-full font-bold text-[11px] transition-all">
+                    Klaim Slot Now <i class="fa-solid fa-arrow-right text-[9px]"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header / Navbar -->
+    <header class="sticky top-0 z-40 bg-white/95 backdrop-blur-md shadow-sm border-b border-slate-100 transition-all duration-300">
+        <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Brand Logo -->
+            <a href="#" class="flex items-center gap-3 group">
+                <div class="relative flex items-center justify-center">
+                    <img src="WhatsApp Image 2026-08-18 at 09.09.31_2.jpeg" alt="Marijo Journey Travel Logo" class="h-12 sm:h-14 w-auto object-contain drop-shadow-md group-hover:scale-105 transition-transform" onerror="this.onerror=null; this.src='https://placehold.co/200x200/0f172a/a3e635?text=Marijo+Travel';">
+                </div>
+                <div class="flex flex-col justify-center">
+                    <span class="text-xl font-extrabold tracking-tight text-slate-900 leading-none">MARIJO <span class="text-lime-500 font-black">JOURNEY</span></span>
+                    <span class="text-[10px] font-bold tracking-widest text-slate-400 uppercase mt-0.5">Travel Luwuk</span>
+                </div>
+            </a>
+
+            <!-- Desktop Menu -->
+            <div class="hidden lg:flex items-center gap-7 font-semibold text-xs uppercase tracking-wide text-slate-600">
+                <a href="#beranda" class="hover:text-ocean-600 transition-colors" data-i18n="nav_home">Beranda</a>
+                <a href="#tentang" class="hover:text-ocean-600 transition-colors" data-i18n="nav_about">Tentang Kami</a>
+                <a href="#akses-rute" class="hover:text-ocean-600 transition-colors">Panduan Rute</a>
+                <a href="#destinasi" class="hover:text-ocean-600 transition-colors" data-i18n="nav_destinations">Destinasi Map</a>
+                <a href="#paket" class="hover:text-ocean-600 transition-colors" data-i18n="nav_packages">Paket Tour</a>
+                <a href="#keselamatan" class="hover:text-ocean-600 transition-colors">Keamanan</a>
+                <a href="#corporate" class="hover:text-ocean-600 transition-colors">Rombongan B2B</a>
+                <a href="#faq" class="hover:text-ocean-600 transition-colors" data-i18n="nav_faq">FAQ</a>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="hidden sm:flex items-center gap-3">
+                <button onclick="openBookingModal('Custom Trip')" class="px-4 py-2.5 rounded-full border border-ocean-600 text-ocean-600 hover:bg-ocean-50 font-semibold text-xs transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-calculator"></i>
+                    <span data-i18n="btn_calc">Hitung Estimasi</span>
+                </button>
+                <a href="https://wa.me/6282355526882?text=Halo%20Marijo%20Journey%20Travel,%20saya%20ingin%20tanya%20paket%20wisata%20Luwuk" target="_blank" class="px-5 py-2.5 rounded-full bg-ocean-600 hover:bg-ocean-700 text-white font-semibold text-xs shadow-md shadow-ocean-600/20 transition-all flex items-center gap-2">
+                    <i class="fa-brands fa-whatsapp text-sm"></i>
+                    <span data-i18n="btn_contact">Hubungi Kami</span>
+                </a>
+            </div>
+
+            <!-- Mobile Hamburger Button -->
+            <button id="menu-btn" class="lg:hidden text-slate-700 hover:text-ocean-600 focus:outline-none p-2">
+                <i class="fa-solid fa-bars text-2xl"></i>
+            </button>
+        </nav>
+
+        <!-- Mobile Menu Drawer -->
+        <div id="mobile-menu" class="hidden lg:hidden bg-white border-b border-slate-100 px-6 py-4 space-y-3 font-medium text-slate-700 shadow-xl">
+            <div class="flex items-center justify-between py-2 border-b border-slate-100 text-xs">
+                <span class="font-bold text-slate-500">Mata Uang & Bahasa:</span>
+                <div class="flex gap-2">
+                    <select onchange="changeCurrency(this.value)" class="bg-slate-100 border border-slate-200 rounded px-2 py-1 text-xs">
+                        <option value="IDR">IDR (Rp)</option>
+                        <option value="USD">USD ($)</option>
+                        <option value="EUR">EUR (€)</option>
+                    </select>
+                    <select onchange="changeLanguage(this.value)" class="bg-slate-100 border border-slate-200 rounded px-2 py-1 text-xs">
+                        <option value="id">🇮🇩 ID</option>
+                        <option value="en">🇬🇧 EN</option>
+                    </select>
+                </div>
+            </div>
+            <a href="#beranda" class="block hover:text-ocean-600 py-1" data-i18n="nav_home">Beranda</a>
+            <a href="#tentang" class="block hover:text-ocean-600 py-1" data-i18n="nav_about">Tentang Kami</a>
+            <a href="#akses-rute" class="block hover:text-ocean-600 py-1">Panduan Rute</a>
+            <a href="#destinasi" class="block hover:text-ocean-600 py-1" data-i18n="nav_destinations">Destinasi Map</a>
+            <a href="#paket" class="block hover:text-ocean-600 py-1" data-i18n="nav_packages">Paket Tour</a>
+            <a href="#keselamatan" class="block hover:text-ocean-600 py-1">Keamanan & Asuransi</a>
+            <a href="#corporate" class="block hover:text-ocean-600 py-1">Rombongan / Corporate</a>
+            <a href="#faq" class="block hover:text-ocean-600 py-1" data-i18n="nav_faq">FAQ</a>
+            <a href="https://wa.me/6282355526882?text=Halo%20Marijo%20Journey%20Travel" target="_blank" class="w-full text-center mt-2 px-5 py-2.5 rounded-xl bg-ocean-600 text-white font-semibold flex items-center justify-center gap-2 text-sm">
+                <i class="fa-brands fa-whatsapp text-lg"></i>
+                <span data-i18n="btn_contact">Chat via WhatsApp</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section id="beranda" class="relative hero-bg min-h-[90vh] pt-20 pb-20 flex items-center justify-center text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
+            <div class="max-w-3xl space-y-6">
+                <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-amber-300 text-xs sm:text-sm font-semibold tracking-wide">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <span>Luwuk Banggai & Kepulauan, Sulawesi Tengah</span>
+                </div>
+                <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight">
+                    Jelajahi Surga Tersembunyi Bersama <span class="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-lime-300 to-amber-300">Marijo Journey</span>
+                </h1>
+                <p class="text-lg sm:text-xl text-slate-200 font-normal leading-relaxed">
+                    Nikmati keindahan Danau Paisu Pok, Pulau Dua Balantak, Air Terjun Salodic, hingga bahari eksotis Banggai dengan layanan tour lokal profesional terbaik.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4 pt-2">
+                    <a href="#paket" class="px-7 py-4 rounded-xl bg-gradient-to-r from-ocean-500 to-teal-500 hover:from-ocean-600 hover:to-teal-600 text-white font-bold shadow-lg shadow-ocean-500/30 text-center transition-all flex items-center justify-center gap-2">
+                        <span>Lihat Paket Tour</span>
+                        <i class="fa-solid fa-arrow-right"></i>
+                    </a>
+                    
+                    <!-- ELEMEN 1C: Teaser Video Button -->
+                    <button onclick="openVideoModal()" class="px-6 py-4 rounded-xl bg-amber-500/90 hover:bg-amber-500 backdrop-blur-md text-slate-950 font-bold text-center transition-all flex items-center justify-center gap-2 shadow-lg shadow-amber-500/20">
+                        <i class="fa-solid fa-circle-play text-xl"></i>
+                        <span>Play Video Teaser (1 Min)</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Quick Filter Box -->
+            <div class="mt-12 glass-card p-4 sm:p-6 rounded-2xl text-slate-800 shadow-2xl">
+                <form id="quick-search-form" class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1"><i class="fa-solid fa-compass text-ocean-600 mr-1"></i> Destinasi Impian</label>
+                        <select id="search-destination" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-ocean-500 focus:outline-none">
+                            <option value="all">Semua Destinasi</option>
+                            <option value="paisupok">Danau Paisupok & Banggai Laut</option>
+                            <option value="pulaudua">Pulau Dua Balantak</option>
+                            <option value="salodic">Air Terjun Salodic & Piala</option>
+                            <option value="citytour">Luwuk City & Bukit Keles</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1"><i class="fa-solid fa-clock text-ocean-600 mr-1"></i> Durasi Trip</label>
+                        <select id="search-duration" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-ocean-500 focus:outline-none">
+                            <option value="all">Semua Durasi</option>
+                            <option value="1d">1 Hari (One Day Trip)</option>
+                            <option value="2d1n">2 Hari 1 Malam</option>
+                            <option value="3d2n">3 Hari 2 Malam</option>
+                            <option value="4d3n">4 Hari 3 Malam</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-slate-500 uppercase mb-1"><i class="fa-solid fa-users text-ocean-600 mr-1"></i> Kategori Tour</label>
+                        <select id="search-type" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm font-medium focus:ring-2 focus:ring-ocean-500 focus:outline-none">
+                            <option value="all">Private / Open Trip</option>
+                            <option value="private">Private Tour VIP</option>
+                            <option value="open">Open Trip Hemat</option>
+                            <option value="family">Family & Corporate</option>
+                        </select>
+                    </div>
+                    <div>
+                        <button type="button" onclick="filterPackages()" class="w-full py-3 bg-ocean-600 hover:bg-ocean-700 text-white font-bold rounded-xl transition-colors shadow-md flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>Cari Paket</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- ELEMEN 1A: Seksi Panduan Aksesibilitas & Rute Penerbangan -->
+    <section id="akses-rute" class="py-16 bg-slate-900 text-white border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-xs font-bold text-teal-400 tracking-widest uppercase bg-teal-950 border border-teal-800 px-3 py-1 rounded-full">Panduan Aksesibilitas</span>
+                <h2 class="text-3xl font-extrabold mt-3">Sangat Mudah Menuju Luwuk Banggai</h2>
+                <p class="text-slate-400 text-sm mt-2">Bagi wisatawan luar pulau (Jakarta, Surabaya, Bali, dll.), berikut adalah rute perjalanan praktis yang kami siapkan.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 relative">
+                <!-- Step 1 -->
+                <div class="bg-slate-800/90 p-6 rounded-2xl border border-slate-700 relative hover:border-ocean-500 transition-all">
+                    <span class="w-8 h-8 rounded-full bg-ocean-500 text-white font-extrabold flex items-center justify-center text-sm mb-4">1</span>
+                    <h3 class="font-bold text-lg text-white mb-2"><i class="fa-solid fa-plane text-teal-400 mr-2"></i> Penerbangan ke Luwuk (LUW)</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Pesan tiket pesawat menuju Bandara Syukri Amir Luwuk (LUW) via transit Makassar (UPG) atau Manado (MDC). Maskapai: Batik Air, Lion Air, Wings Air.</p>
+                </div>
+
+                <!-- Step 2 -->
+                <div class="bg-slate-800/90 p-6 rounded-2xl border border-slate-700 relative hover:border-ocean-500 transition-all">
+                    <span class="w-8 h-8 rounded-full bg-ocean-500 text-white font-extrabold flex items-center justify-center text-sm mb-4">2</span>
+                    <h3 class="font-bold text-lg text-white mb-2"><i class="fa-solid fa-van-shuttle text-teal-400 mr-2"></i> Penjemputan VIP Tim Marijo</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Tim driver dan guide lokal kami akan menyambut Anda langsung di pintu kedatangan bandara Luwuk dengan armada kendaraan AC dingin.</p>
+                </div>
+
+                <!-- Step 3 -->
+                <div class="bg-slate-800/90 p-6 rounded-2xl border border-slate-700 relative hover:border-lime-400 transition-all">
+                    <span class="w-8 h-8 rounded-full bg-lime-400 text-slate-900 font-extrabold flex items-center justify-center text-sm mb-4">3</span>
+                    <h3 class="font-bold text-lg text-white mb-2"><i class="fa-solid fa-ship text-lime-400 mr-2"></i> Penyeberangan & Eksplorasi</h3>
+                    <p class="text-xs text-slate-400 leading-relaxed">Nikmati pelayaran aman via speedboat ke Danau Paisu Pok, Pulau Dua Balantak, dan destinasi impian tanpa pusing mengurus logistik.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Stats Banner -->
+    <section class="bg-white border-b border-slate-100 py-10">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+                <div class="p-4">
+                    <p class="text-3xl sm:text-4xl font-extrabold text-ocean-600">1,200+</p>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">Wisatawan Puas</p>
+                </div>
+                <div class="p-4">
+                    <p class="text-3xl sm:text-4xl font-extrabold text-ocean-600">25+</p>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">Spot Eksotis Luwuk</p>
+                </div>
+                <div class="p-4">
+                    <p class="text-3xl sm:text-4xl font-extrabold text-ocean-600">100%</p>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">Guide Lokal Asli</p>
+                </div>
+                <div class="p-4">
+                    <p class="text-3xl sm:text-4xl font-extrabold text-ocean-600">4.9/5</p>
+                    <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">Rating Bintang</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Tentang Kami Section -->
+    <section id="tentang" class="py-20 bg-white relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <!-- Left Visual Showcase -->
+                <div class="lg:col-span-5 relative">
+                    <div class="relative z-10 rounded-3xl overflow-hidden shadow-2xl border-4 border-white">
+                        <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=800&auto=format&fit=crop" alt="Marijo Journey Team" class="w-full h-[420px] object-cover">
+                    </div>
+                    <div class="absolute -bottom-6 -right-6 w-1/2 rounded-2xl overflow-hidden border-4 border-white shadow-xl z-20 hidden sm:block">
+                        <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=400&auto=format&fit=crop" alt="Danau Paisupok Luwuk" class="w-full h-36 object-cover">
+                    </div>
+                    <div class="absolute -top-6 -left-6 bg-ocean-600 text-white p-5 rounded-2xl shadow-xl z-20 flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-white/20 flex items-center justify-center text-2xl font-black">
+                            <i class="fa-solid fa-award text-amber-300"></i>
+                        </div>
+                        <div>
+                            <p class="text-2xl font-extrabold leading-none">Lokal</p>
+                            <p class="text-xs text-teal-100 font-medium mt-0.5">Ahli Destinasi Banggai</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Content Description -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div>
+                        <span class="text-xs font-bold text-ocean-600 tracking-widest uppercase bg-ocean-50 px-3 py-1 rounded-full">Mengenal Marijo Journey</span>
+                        <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3 leading-tight">
+                            Solusi Perjalanan Wisata Terbaik di Tanah Luwuk Banggai
+                        </h2>
+                    </div>
+
+                    <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
+                        <strong class="text-slate-800">CV. MARIJO JOURNEY</strong> (Marijo Journey Travel) lahir dari semangat pemuda daerah Luwuk untuk memperkenalkan keajaiban alam Sulawesi Tengah ke kancah nasional maupun internasional. Kami beroperasi secara resmi dan profesional dengan legalitas terdaftar.
+                    </p>
+
+                    <!-- Legal Card -->
+                    <div class="bg-ocean-50/80 border border-ocean-200/60 rounded-2xl p-4 flex flex-col sm:flex-row items-start sm:items-center gap-4 shadow-sm">
+                        <div class="w-12 h-12 rounded-xl bg-ocean-600 text-white flex items-center justify-center flex-shrink-0 text-xl font-bold shadow-md shadow-ocean-600/20">
+                            <i class="fa-solid fa-file-contract"></i>
+                        </div>
+                        <div class="space-y-1 text-xs text-slate-700">
+                            <p class="font-extrabold text-slate-900 text-sm flex items-center gap-2">
+                                <span>CV. MARIJO JOURNEY</span>
+                                <span class="bg-teal-100 text-teal-800 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase"><i class="fa-solid fa-circle-check text-teal-600 mr-1"></i> Terverifikasi Resmi</span>
+                            </p>
+                            <p class="text-slate-600"><strong class="text-slate-800">No. Akta Pendirian:</strong> 35 TAHUN 2026</p>
+                            <p class="text-slate-600"><strong class="text-slate-800">SK Kemenkumham:</strong> AHU-0043939-AH.01.14 TAHUN 2026</p>
+                        </div>
+                    </div>
+
+                    <div class="pt-2 flex flex-wrap items-center gap-4">
+                        <a href="#paket" class="px-6 py-3 rounded-xl bg-ocean-600 hover:bg-ocean-700 text-white font-bold text-sm transition-all shadow-md flex items-center gap-2">
+                            <span>Jelajahi Paket Wisata</span>
+                            <i class="fa-solid fa-arrow-right text-xs"></i>
+                        </a>
+                        <a href="https://wa.me/6282355526882?text=Halo%20Marijo%20Journey,%20saya%20ingin%20konsultasi%20trip%20Luwuk" target="_blank" class="px-6 py-3 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm transition-all flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-green-600 text-lg"></i>
+                            <span>Tanya Customer Service</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ELEMEN 1B: Seksi Peta Destinasi Interaktif (Leaflet JS Integration) -->
+    <section id="destinasi" class="py-20 bg-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-xs font-bold text-ocean-600 tracking-widest uppercase bg-ocean-50 px-3 py-1 rounded-full">Sebaran Lokasi</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3">Peta Destinasi Wisata Interaktif</h2>
+                <p class="text-slate-600 mt-2">Klik pin lokasi di bawah ini untuk melihat keindahan dan informasi paket tour di setiap spot.</p>
+            </div>
+
+            <!-- Leaflet Interactive Map Container -->
+            <div class="bg-white p-3 rounded-3xl shadow-xl border border-slate-200 overflow-hidden">
+                <div id="interactive-map" class="h-[420px] w-full rounded-2xl"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Paket Tour Section -->
+    <section id="paket" class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-xs font-bold text-ocean-600 tracking-widest uppercase bg-ocean-50 px-3 py-1 rounded-full">Pilihan Paket Wisata</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3">Paket Tour Terpopuler</h2>
+                <p class="text-slate-600 mt-2">Pilih paket perjalanan sesuai waktu dan budget liburan Anda bersama Marijo Journey.</p>
+            </div>
+
+            <!-- Filter Buttons -->
+            <div class="flex justify-center flex-wrap gap-2 mb-12">
+                <button onclick="filterPackageCategory('all')" class="pkg-btn active px-5 py-2.5 rounded-full text-sm font-semibold bg-ocean-600 text-white transition-all">Semua Paket</button>
+                <button onclick="filterPackageCategory('oneday')" class="pkg-btn px-5 py-2.5 rounded-full text-sm font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">One Day Trip</button>
+                <button onclick="filterPackageCategory('banggai')" class="pkg-btn px-5 py-2.5 rounded-full text-sm font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Paisu Pok & Banggai</button>
+                <button onclick="filterPackageCategory('vip')" class="pkg-btn px-5 py-2.5 rounded-full text-sm font-semibold bg-slate-100 text-slate-600 hover:bg-slate-200 transition-all">Private VIP</button>
+            </div>
+
+            <!-- Tour Cards Grid -->
+            <div id="package-grid" class="grid grid-cols-1 md:grid-cols-3 gap-8">
+
+                <!-- Package Item 1 -->
+                <div class="pkg-card banggai vip bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=800&auto=format&fit=crop" alt="Paisu Pok Tour" class="w-full h-52 object-cover">
+                            <div class="absolute top-3 right-3 bg-ocean-600 text-white text-xs font-bold px-3 py-1 rounded-full">3D2N Tour</div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">Exotic Banggai & Paisu Pok</h3>
+                            <p class="text-xs text-slate-500 mb-4 flex items-center gap-1">
+                                <i class="fa-regular fa-clock text-ocean-600"></i> 3 Hari 2 Malam
+                                <span class="mx-1">•</span>
+                                <i class="fa-solid fa-user-group text-ocean-600"></i> Min. 2 Pax
+                            </p>
+                            <ul class="space-y-2 text-xs text-slate-600 mb-6">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Danau Paisu Pok & Paisu Batango</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Pantai Poganda & Liang Beach</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Speedboat, Mobil & Driver Local</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Penginapan & Makan Sesuai Program</li>
+                            </ul>
+                            <button onclick="showItinerary('paisupok')" class="text-xs text-ocean-600 font-bold hover:underline flex items-center gap-1 mb-2">
+                                <i class="fa-solid fa-list-check"></i> Lihat Detail Itinerary 3 Hari
+                            </button>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 pt-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Mulai Dari</span>
+                            <span class="text-xl font-extrabold text-ocean-600 price-tag" data-base-price="1850000">Rp 1.850.000</span>
+                            <span class="text-xs text-slate-500">/pax</span>
+                        </div>
+                        <button onclick="openBookingModal('Exotic Banggai & Paisu Pok 3D2N', 1850000)" class="px-4 py-2.5 bg-ocean-600 hover:bg-ocean-700 text-white font-semibold text-xs rounded-xl transition-colors shadow">
+                            Pesan / Hitung
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Package Item 2 -->
+                <div class="pkg-card oneday bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?q=80&w=800&auto=format&fit=crop" alt="Pulau Dua Balantak" class="w-full h-52 object-cover">
+                            <div class="absolute top-3 right-3 bg-amber-500 text-white text-xs font-bold px-3 py-1 rounded-full">1 Day Trip</div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">One Day Pulau Dua Balantak</h3>
+                            <p class="text-xs text-slate-500 mb-4 flex items-center gap-1">
+                                <i class="fa-regular fa-clock text-ocean-600"></i> 1 Hari (Full Day)
+                                <span class="mx-1">•</span>
+                                <i class="fa-solid fa-user-group text-ocean-600"></i> Min. 4 Pax
+                            </p>
+                            <ul class="space-y-2 text-xs text-slate-600 mb-6">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Trekking Puncak Pulau Dua</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Snorkeling & Spot Foto Underwater</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Perahu Antar-Jemput Pulau</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Lunch Box Seafood Khas Luwuk</li>
+                            </ul>
+                            <button onclick="showItinerary('pulaudua')" class="text-xs text-ocean-600 font-bold hover:underline flex items-center gap-1 mb-2">
+                                <i class="fa-solid fa-list-check"></i> Lihat Detail Itinerary 1 Hari
+                            </button>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 pt-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Mulai Dari</span>
+                            <span class="text-xl font-extrabold text-ocean-600 price-tag" data-base-price="450000">Rp 450.000</span>
+                            <span class="text-xs text-slate-500">/pax</span>
+                        </div>
+                        <button onclick="openBookingModal('One Day Pulau Dua Balantak', 450000)" class="px-4 py-2.5 bg-ocean-600 hover:bg-ocean-700 text-white font-semibold text-xs rounded-xl transition-colors shadow">
+                            Pesan / Hitung
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Package Item 3 -->
+                <div class="pkg-card oneday vip bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col justify-between">
+                    <div>
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?q=80&w=800&auto=format&fit=crop" alt="City Tour Luwuk" class="w-full h-52 object-cover">
+                            <div class="absolute top-3 right-3 bg-teal-600 text-white text-xs font-bold px-3 py-1 rounded-full">City & Nature</div>
+                        </div>
+                        <div class="p-6">
+                            <h3 class="text-xl font-bold text-slate-900 mb-2">Luwuk City & Air Terjun Tour</h3>
+                            <p class="text-xs text-slate-500 mb-4 flex items-center gap-1">
+                                <i class="fa-regular fa-clock text-ocean-600"></i> 1 Hari (Full Day)
+                                <span class="mx-1">•</span>
+                                <i class="fa-solid fa-user-group text-ocean-600"></i> Flexible Pax
+                            </p>
+                            <ul class="space-y-2 text-xs text-slate-600 mb-6">
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Air Terjun Salodic & Air Terjun Piala</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Pemandangan Night View Bukit Keles</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Wisata Kuliner Lalong & Pantai Kilo 5</li>
+                                <li class="flex items-center gap-2"><i class="fa-solid fa-check text-ocean-500"></i> Mobil AC Comfort + Driver Guide</li>
+                            </ul>
+                            <button onclick="showItinerary('citytour')" class="text-xs text-ocean-600 font-bold hover:underline flex items-center gap-1 mb-2">
+                                <i class="fa-solid fa-list-check"></i> Lihat Detail Itinerary City Tour
+                            </button>
+                        </div>
+                    </div>
+                    <div class="px-6 pb-6 pt-4 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-400 block">Mulai Dari</span>
+                            <span class="text-xl font-extrabold text-ocean-600 price-tag" data-base-price="350000">Rp 350.000</span>
+                            <span class="text-xs text-slate-500">/pax</span>
+                        </div>
+                        <button onclick="openBookingModal('Luwuk City & Air Terjun Tour', 350000)" class="px-4 py-2.5 bg-ocean-600 hover:bg-ocean-700 text-white font-semibold text-xs rounded-xl transition-colors shadow">
+                            Pesan / Hitung
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+    <!-- ELEMEN 2A: Fitur Trip Guarantee & Safety Standards (Jaminan Keselamatan) -->
+    <section id="keselamatan" class="py-16 bg-emerald-950 text-white border-y border-emerald-900">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-xs font-bold text-emerald-400 tracking-widest uppercase bg-emerald-900 border border-emerald-800 px-3 py-1 rounded-full">Safety Standards</span>
+                <h2 class="text-3xl font-extrabold mt-3">Prioritas Utama Adalah Keselamatan Anda</h2>
+                <p class="text-emerald-200/80 text-sm mt-2">Seluruh perjalanan bahari dan danau diselenggarakan dengan standar prosedur keamanan tinggi.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-emerald-900/40 border border-emerald-800/80 p-6 rounded-2xl">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-life-ring"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-emerald-200 mb-1">Pelampung Standar SOLAS</h3>
+                    <p class="text-xs text-emerald-100/70 leading-relaxed">Disediakan pelampung keselamatan (*life jacket*) berstandar lengkap di setiap armada kapal.</p>
+                </div>
+
+                <div class="bg-emerald-900/40 border border-emerald-800/80 p-6 rounded-2xl">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-user-shield"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-emerald-200 mb-1">Kapten & Nahkoda Lisensi</h3>
+                    <p class="text-xs text-emerald-100/70 leading-relaxed">Pengemudi kapal berpengalaman bertahun-tahun di perairan Banggai Raya.</p>
+                </div>
+
+                <div class="bg-emerald-900/40 border border-emerald-800/80 p-6 rounded-2xl">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-id-card-clip"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-emerald-200 mb-1">Proteksi Asuransi Wisata</h3>
+                    <p class="text-xs text-emerald-100/70 leading-relaxed">Setiap peserta tercover perlindungan keselamatan perjalanan resmi dari tim Marijo.</p>
+                </div>
+
+                <div class="bg-emerald-900/40 border border-emerald-800/80 p-6 rounded-2xl">
+                    <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-cloud-sun-rain"></i>
+                    </div>
+                    <h3 class="font-bold text-base text-emerald-200 mb-1">Garansi Reschedule Cuaca</h3>
+                    <p class="text-xs text-emerald-100/70 leading-relaxed">Fleksibilitas penyesuaian jadwal atau refund aman jika terdapat peringatan cuaca BMKG.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ELEMEN 2B: Checklist Persiapan & Packing List Wisatawan -->
+    <section class="py-16 bg-white">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="bg-slate-50 border border-slate-200 rounded-3xl p-6 sm:p-8 shadow-sm">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-200">
+                    <div>
+                        <span class="text-xs font-bold text-ocean-600 uppercase tracking-widest">Travel Essentials</span>
+                        <h3 class="text-xl font-extrabold text-slate-900 mt-1">Checklist Persiapan Barang Bawaan Wisatawan</h3>
+                        <p class="text-xs text-slate-500">Centang barang bawaan Anda untuk memastikan trip berjalan lancar tanpa ada yang tertinggal.</p>
+                    </div>
+                    <div class="bg-ocean-100 text-ocean-800 px-4 py-2 rounded-2xl text-center shrink-0">
+                        <span class="text-xs block font-semibold">Progres Siap</span>
+                        <span class="text-lg font-black" id="checklist-progress">0/6</span>
+                    </div>
+                </div>
+
+                <!-- Progress bar -->
+                <div class="w-full bg-slate-200 h-2 rounded-full mb-6 overflow-hidden">
+                    <div id="checklist-bar" class="bg-ocean-600 h-full w-0 transition-all duration-300"></div>
+                </div>
+
+                <!-- Checkbox Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                        <input type="checkbox" onchange="updateChecklist()" class="checklist-item rounded text-ocean-600 focus:ring-ocean-500 w-4 h-4">
+                        <span class="text-slate-700 font-medium"><i class="fa-solid fa-shoe-prints text-ocean-600 mr-1.5"></i> Sepatu Air / Sandal Gunung (Coral Shoes)</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                        <input type="checkbox" onchange="updateChecklist()" class="checklist-item rounded text-ocean-600 focus:ring-ocean-500 w-4 h-4">
+                        <span class="text-slate-700 font-medium"><i class="fa-solid fa-bag-shopping text-ocean-600 mr-1.5"></i> Dry Bag / Tas Tahan Air</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                        <input type="checkbox" onchange="updateChecklist()" class="checklist-item rounded text-ocean-600 focus:ring-ocean-500 w-4 h-4">
+                        <span class="text-slate-700 font-medium"><i class="fa-solid fa-shirt text-ocean-600 mr-1.5"></i> Pakaian Cerah (Bagus untuk Drone Photo)</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                        <input type="checkbox" onchange="updateChecklist()" class="checklist-item rounded text-ocean-600 focus:ring-ocean-500 w-4 h-4">
+                        <span class="text-slate-700 font-medium"><i class="fa-solid fa-sun text-ocean-600 mr-1.5"></i> Sunscreen Ramah Terumbu Karang</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                        <input type="checkbox" onchange="updateChecklist()" class="checklist-item rounded text-ocean-600 focus:ring-ocean-500 w-4 h-4">
+                        <span class="text-slate-700 font-medium"><i class="fa-solid fa-money-bill-wave text-ocean-600 mr-1.5"></i> Uang Tunai Secukupnya (ATM di Pulau Terbatas)</span>
+                    </label>
+                    <label class="flex items-center gap-3 p-3 bg-white border border-slate-200 rounded-xl cursor-pointer hover:bg-slate-100 transition-colors">
+                        <input type="checkbox" onchange="updateChecklist()" class="checklist-item rounded text-ocean-600 focus:ring-ocean-500 w-4 h-4">
+                        <span class="text-slate-700 font-medium"><i class="fa-solid fa-pills text-ocean-600 mr-1.5"></i> Obat Anti Mabuk Laut / Pribadi</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ELEMEN 3A: Form Pengajuan Tour Rombongan / Corporate Gathering (B2B) -->
+    <section id="corporate" class="py-20 bg-slate-900 text-white relative">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+                <div class="lg:col-span-5 space-y-4">
+                    <span class="text-xs font-bold text-lime-400 tracking-widest uppercase bg-lime-950 border border-lime-800 px-3 py-1 rounded-full">B2B & Group Request</span>
+                    <h2 class="text-3xl sm:text-4xl font-extrabold leading-tight">Rencanakan Outing Perusahaan & Gathering Rombongan</h2>
+                    <p class="text-slate-400 text-sm leading-relaxed">
+                        Membutuhkan penawaran harga khusus instansi, proposal formal, kwitansi/LPJ legal, atau armada eksklusif untuk 15 hingga 100+ peserta? Tim Marijo Journey siap melayani Anda.
+                    </p>
+                    <div class="space-y-2 text-xs text-slate-300">
+                        <p class="flex items-center gap-2"><i class="fa-solid fa-file-invoice text-lime-400"></i> Invoice & SPJ Resmi Lengkap</p>
+                        <p class="flex items-center gap-2"><i class="fa-solid fa-bus-simple text-lime-400"></i> Convoy Bus & Custom Speedboat Capacity</p>
+                        <p class="flex items-center gap-2"><i class="fa-solid fa-bullhorn text-lime-400"></i> Event Organizer & Outbound Games Leader</p>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-7">
+                    <div class="bg-slate-800 border border-slate-700 rounded-3xl p-6 sm:p-8 shadow-2xl">
+                        <h3 class="text-xl font-bold text-white mb-2">Form Permintaan Proposal Resmi</h3>
+                        <p class="text-xs text-slate-400 mb-6">Isi data rombongan Anda di bawah ini, proposal akan otomatis kami kirimkan via WhatsApp.</p>
+
+                        <form onsubmit="sendCorporateB2B(event)" class="space-y-4 text-xs">
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block font-bold text-slate-300 uppercase mb-1">Nama Instansi / Perusahaan / Rombongan</label>
+                                    <input type="text" id="b2b-company" required placeholder="Contoh: PT. Bank Sulselbar / Keluarga Besar Budi" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-lime-400 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-300 uppercase mb-1">Nama Penanggung Jawab (PIC)</label>
+                                    <input type="text" id="b2b-pic" required placeholder="Nama Anda" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-lime-400 focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block font-bold text-slate-300 uppercase mb-1">Perkiraan Jumlah Peserta</label>
+                                    <input type="number" id="b2b-pax" min="10" required placeholder="Contoh: 25 Orang" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-lime-400 focus:outline-none">
+                                </div>
+                                <div>
+                                    <label class="block font-bold text-slate-300 uppercase mb-1">Estimasi Bulan Keberangkatan</label>
+                                    <input type="text" id="b2b-month" required placeholder="Contoh: November 2026" class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-lime-400 focus:outline-none">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block font-bold text-slate-300 uppercase mb-1">Catatan Khusus / Request Tambahan</label>
+                                <textarea id="b2b-notes" rows="2" placeholder="Sebutkan jika butuh gala dinner, spanduk rombongan, atau request khusus..." class="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-3 text-white focus:ring-2 focus:ring-lime-400 focus:outline-none"></textarea>
+                            </div>
+
+                            <button type="submit" class="w-full py-3.5 bg-lime-400 hover:bg-lime-500 text-slate-950 font-extrabold text-sm rounded-xl transition-all shadow-lg flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-paper-plane"></i>
+                                <span>Minta Proposal & Penawaran Resmi</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mengapa Pilih Kami (Keunggulan) -->
+    <section id="keunggulan" class="py-20 bg-slate-900 text-white relative overflow-hidden border-t border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-xs font-bold text-teal-400 tracking-widest uppercase bg-teal-950 border border-teal-800 px-3 py-1 rounded-full">Keunggulan Marijo Journey</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold mt-3">Mengapa Memilih Kami?</h2>
+                <p class="text-slate-400 mt-2">Kami memastikan perjalanan Anda di Luwuk Banggai aman, nyaman, dan tak terlupakan.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+                <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-2xl hover:border-ocean-500 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-ocean-500/20 text-teal-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-map-location-dot"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Guide Lokal Berpengalaman</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed">Tim asli putra daerah Luwuk yang tahu persis spot tersembunyi terbaik dan rute teraman.</p>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-2xl hover:border-ocean-500 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-ocean-500/20 text-teal-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-van-shuttle"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Armada Nyaman & Terawat</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed">Kendaraan darat full AC dan speedboat bersih lengkap dengan perlengkapan keselamatan.</p>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-2xl hover:border-ocean-500 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-ocean-500/20 text-teal-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-camera-retro"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Dokumentasi Drone & Underwater</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed">Abadikan momen estetik dengan perangkat kamera profesional dan drone tanpa batas.</p>
+                </div>
+
+                <div class="bg-slate-800/80 border border-slate-700 p-6 rounded-2xl hover:border-ocean-500 transition-all duration-300">
+                    <div class="w-12 h-12 rounded-xl bg-ocean-500/20 text-teal-400 flex items-center justify-center text-2xl mb-4">
+                        <i class="fa-solid fa-hand-holding-dollar"></i>
+                    </div>
+                    <h3 class="text-lg font-bold mb-2">Harga Transparan</h3>
+                    <p class="text-slate-400 text-xs leading-relaxed">Tanpa biaya tersembunyi! Penawaran fleksibel sesuai budget kelompok Anda.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Galeri Wisata -->
+    <section id="galeri" class="py-20 bg-slate-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-12">
+                <span class="text-xs font-bold text-ocean-600 tracking-widest uppercase bg-ocean-50 px-3 py-1 rounded-full">Galeri Momen</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3">Potret Perjalanan Klien</h2>
+                <p class="text-slate-600 mt-2">Lihat keseruan petualangan para tamu kami di berbagai destinasi Luwuk.</p>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                <div class="relative overflow-hidden rounded-2xl h-60 group">
+                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Pantai Luwuk">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 text-white text-xs font-semibold">
+                        Pantai Liang Banggai
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl h-60 group">
+                    <img src="https://images.unsplash.com/photo-1544551763-46a013bb70d5?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Danau Paisupok">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 text-white text-xs font-semibold">
+                        Danau Paisu Pok
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl h-60 group">
+                    <img src="https://images.unsplash.com/photo-1590523741831-ab7e8b8f9c7f?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Pulau Dua">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 text-white text-xs font-semibold">
+                        Puncak Pulau Dua Balantak
+                    </div>
+                </div>
+                <div class="relative overflow-hidden rounded-2xl h-60 group">
+                    <img src="https://images.unsplash.com/photo-1432405972618-c60b0225b8f9?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt="Air Terjun">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end p-4 text-white text-xs font-semibold">
+                        Air Terjun Salodic
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonial Section -->
+    <section class="py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-16">
+                <span class="text-xs font-bold text-ocean-600 tracking-widest uppercase bg-ocean-50 px-3 py-1 rounded-full">Kata Mereka</span>
+                <h2 class="text-3xl sm:text-4xl font-extrabold text-slate-900 mt-3">Ulasan Wisatawan</h2>
+                <p class="text-slate-600 mt-2">Pengalaman nyata dari para petualang yang mempercayakan wisatanya pada Marijo Journey.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm relative">
+                    <div class="flex items-center gap-1 text-amber-500 text-xs mb-3">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-slate-700 text-sm italic mb-6">"Trip ke Paisu Pok bareng Marijo Journey beneran teratur banget! Guide-nya ramah, foto-fotonya bagus banget pake drone. Recommended parah!"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-ocean-500 text-white font-bold flex items-center justify-center">RA</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Rizky Amanda</p>
+                            <p class="text-xs text-slate-400">Wisatawan asal Jakarta</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm relative">
+                    <div class="flex items-center gap-1 text-amber-500 text-xs mb-3">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-slate-700 text-sm italic mb-6">"Family trip 12 orang sangat terlayani dengan baik. Mobilnya dingin, driver paham tempat makan seafood yang enak di Luwuk. Terima kasih Marijo Journey!"</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-teal-600 text-white font-bold flex items-center justify-center">BS</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Budi Santoso</p>
+                            <p class="text-xs text-slate-400">Wisatawan asal Surabaya</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-slate-50 p-6 rounded-2xl border border-slate-100 shadow-sm relative">
+                    <div class="flex items-center gap-1 text-amber-500 text-xs mb-3">
+                        <i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i><i class="fa-solid fa-star"></i>
+                    </div>
+                    <p class="text-slate-700 text-sm italic mb-6">"Pulau Dua Balantak viewnya juara! Tour gampang diatur via WA, respon adminnya super cepat. Jangan ragu pakai agen lokal ini."</p>
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-amber-500 text-white font-bold flex items-center justify-center">ND</div>
+                        <div>
+                            <p class="text-sm font-bold text-slate-900">Nadia Dwi</p>
+                            <p class="text-xs text-slate-400">Wisatawan asal Makassar</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section id="faq" class="py-20 bg-slate-50 border-t border-slate-200">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-12">
+                <span class="text-xs font-bold text-ocean-600 tracking-widest uppercase bg-ocean-50 px-3 py-1 rounded-full">Bantuan</span>
+                <h2 class="text-3xl font-extrabold text-slate-900 mt-3">Pertanyaan Sering Diajukan (FAQ)</h2>
+            </div>
+
+            <div class="space-y-4">
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <button onclick="toggleFaq(this)" class="w-full text-left p-5 font-bold text-slate-800 flex justify-between items-center focus:outline-none">
+                        <span>Bagaimana cara menuju Luwuk Banggai?</span>
+                        <i class="fa-solid fa-chevron-down text-ocean-600 transition-transform"></i>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-5 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                        Anda dapat mengambil penerbangan menuju Bandara Syukri Amir Luwuk (LUW) via transit Makassar (UPG) atau Manado (MDC). Tim Marijo Journey siap menjemput Anda langsung di bandara.
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <button onclick="toggleFaq(this)" class="w-full text-left p-5 font-bold text-slate-800 flex justify-between items-center focus:outline-none">
+                        <span>Berapa lama perjalanan ke Danau Paisu Pok dari Kota Luwuk?</span>
+                        <i class="fa-solid fa-chevron-down text-ocean-600 transition-transform"></i>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-5 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                        Perjalanan menyeberang menggunakan kapal laut/speedboat menuju Salakan/Luk Panenteng Banggai Kepulauan memakan waktu sekitar 2 hingga 3.5 jam tergantung jenis kapal yang dipilih.
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-2xl border border-slate-200 overflow-hidden shadow-sm">
+                    <button onclick="toggleFaq(this)" class="w-full text-left p-5 font-bold text-slate-800 flex justify-between items-center focus:outline-none">
+                        <span>Apakah bisa memesan paket Custom sesuai permintaan?</span>
+                        <i class="fa-solid fa-chevron-down text-ocean-600 transition-transform"></i>
+                    </button>
+                    <div class="faq-answer hidden px-5 pb-5 text-sm text-slate-600 leading-relaxed border-t border-slate-100 pt-3">
+                        Sangat bisa! Kami melayani Custom Trip untuk rombongan keluarga, pasangan, instansi, maupun solo traveler sesuai durasi dan pilihan destinasi Anda.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer id="kontak" class="bg-slate-900 text-white pt-16 pb-12">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-10 pb-12 border-b border-slate-800">
+                
+                <!-- Brand Info -->
+                <div class="space-y-4 md:col-span-1">
+                    <div class="flex items-center gap-3">
+                        <img src="WhatsApp Image 2026-08-18 at 09.09.31_2.jpeg" alt="Marijo Journey Logo" class="h-12 w-auto object-contain" onerror="this.onerror=null; this.src='https://placehold.co/200x200/0f172a/a3e635?text=Marijo+Travel';">
+                        <div>
+                            <span class="text-xl font-extrabold tracking-tight block leading-none">MARIJO <span class="text-lime-400 font-black">JOURNEY</span></span>
+                            <span class="text-[10px] text-amber-400 font-bold tracking-wider uppercase">CV. MARIJO JOURNEY</span>
+                        </div>
+                    </div>
+                    <p class="text-slate-400 text-xs leading-relaxed">
+                        Penyedia jasa tour & travel terpercaya di Luwuk, Kabupaten Banggai, Sulawesi Tengah. Solusi liburan mudah, aman, dan berkesan dengan legalitas usaha resmi.
+                    </p>
+                    
+                    <div class="bg-slate-800/80 p-3 rounded-xl border border-slate-700/80 text-[11px] text-slate-300 space-y-1">
+                        <p class="font-bold text-amber-400 flex items-center gap-1.5"><i class="fa-solid fa-shield-halved"></i> Legalitas Perusahaan</p>
+                        <p><span class="text-slate-400">Akta Notaris:</span> No. 35 TAHUN 2026</p>
+                        <p><span class="text-slate-400">AHU Kemenkumham:</span> AHU-0043939-AH.01.14 TAHUN 2026</p>
+                    </div>
+
+                    <div class="flex gap-3 text-slate-400">
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-ocean-600 hover:text-white transition-colors"><i class="fa-brands fa-instagram"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-ocean-600 hover:text-white transition-colors"><i class="fa-brands fa-facebook-f"></i></a>
+                        <a href="#" class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center hover:bg-ocean-600 hover:text-white transition-colors"><i class="fa-brands fa-tiktok"></i></a>
+                    </div>
+                </div>
+
+                <!-- Fast Links -->
+                <div>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Navigasi Utama</h4>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="#beranda" class="hover:text-ocean-400 transition-colors">Beranda</a></li>
+                        <li><a href="#tentang" class="hover:text-ocean-400 transition-colors">Tentang Kami</a></li>
+                        <li><a href="#destinasi" class="hover:text-ocean-400 transition-colors">Destinasi Wisata</a></li>
+                        <li><a href="#paket" class="hover:text-ocean-400 transition-colors">Paket Tour & Pricing</a></li>
+                        <li><a href="#corporate" class="hover:text-ocean-400 transition-colors">Corporate & Rombongan</a></li>
+                        <li><a href="#faq" class="hover:text-ocean-400 transition-colors">FAQ & Bantuan</a></li>
+                    </ul>
+                </div>
+
+                <!-- Popular Spots -->
+                <div>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Spot Terfavorit</h4>
+                    <ul class="space-y-2 text-xs text-slate-400">
+                        <li><a href="#destinasi" class="hover:text-ocean-400 transition-colors">Danau Paisu Pok</a></li>
+                        <li><a href="#destinasi" class="hover:text-ocean-400 transition-colors">Pulau Dua Balantak</a></li>
+                        <li><a href="#destinasi" class="hover:text-ocean-400 transition-colors">Air Terjun Salodic</a></li>
+                        <li><a href="#destinasi" class="hover:text-ocean-400 transition-colors">Bukit Keles & Luwuk View</a></li>
+                        <li><a href="#destinasi" class="hover:text-ocean-400 transition-colors">Pantai Kilo 5</a></li>
+                    </ul>
+                </div>
+
+                <!-- Office Contact -->
+                <div>
+                    <h4 class="text-sm font-bold text-white uppercase tracking-wider mb-4">Kontak Operasional</h4>
+                    <div class="space-y-3 text-xs text-slate-400">
+                        <p class="flex items-start gap-2">
+                            <i class="fa-solid fa-location-dot text-ocean-400 mt-0.5"></i>
+                            <span>Kota Luwuk, Kab. Banggai, Sulawesi Tengah, Indonesia</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="fa-brands fa-whatsapp text-green-400"></i>
+                            <span>+62 823-5552-6882 (Customer Service)</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="fa-regular fa-envelope text-ocean-400"></i>
+                            <span>info@marijojourney.com</span>
+                        </p>
+                        <p class="flex items-center gap-2">
+                            <i class="fa-regular fa-clock text-amber-400"></i>
+                            <span>Buka Setiap Hari: 08:00 - 21:00 WITA</span>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="pt-8 text-center text-xs text-slate-500 space-y-1">
+                <p>&copy; 2026 CV. MARIJO JOURNEY (Marijo Journey Travel Luwuk). All Rights Reserved.</p>
+                <p class="text-[11px] text-slate-600">Terdaftar Resmi Kemenkumham RI No. AHU-0043939-AH.01.14 TAHUN 2026 | Akta Notaris No. 35 TAHUN 2026</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Modal 1: Interactive Dynamic Trip Calculator Modal -->
+    <div id="booking-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-6 sm:p-8 shadow-2xl relative my-8 animate-in fade-in zoom-in duration-200">
+            <button onclick="closeBookingModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div class="mb-4">
+                <span class="text-[10px] uppercase font-bold text-ocean-600 bg-ocean-50 px-2.5 py-1 rounded-full">Interactive Estimator</span>
+                <h3 class="text-2xl font-bold text-slate-900 mt-1" id="modal-title">Kalkulator Cost & Booking</h3>
+                <p class="text-xs text-slate-500 mt-0.5">Sesuaikan jumlah peserta dan add-on untuk menghitung rincian biaya langsung.</p>
+            </div>
+
+            <form id="booking-form" onsubmit="sendWhatsAppBooking(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Pilih Paket Wisata</label>
+                    <select id="calc-package" onchange="calculateTripCost()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-xs font-semibold focus:ring-2 focus:ring-ocean-500 focus:outline-none">
+                        <option value="1850000" data-name="Exotic Banggai & Paisu Pok (3D2N)">Exotic Banggai & Paisu Pok (3D2N) - Rp 1.850.000/pax</option>
+                        <option value="450000" data-name="One Day Pulau Dua Balantak">One Day Pulau Dua Balantak - Rp 450.000/pax</option>
+                        <option value="350000" data-name="Luwuk City & Air Terjun Tour">Luwuk City & Air Terjun Tour - Rp 350.000/pax</option>
+                        <option value="0" data-name="Custom Tour Tailor-Made">Custom Tour Tailor-Made (Bebas Susun)</option>
+                    </select>
+                </div>
+
+                <!-- Pax Slider -->
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="font-bold text-slate-700 uppercase">Jumlah Peserta (Pax):</label>
+                        <span class="text-sm font-extrabold text-ocean-600 bg-ocean-50 px-2.5 py-0.5 rounded-lg" id="pax-val-display">2 Orang</span>
+                    </div>
+                    <input type="range" id="calc-pax" min="1" max="20" value="2" oninput="calculateTripCost()" class="w-full accent-ocean-600 cursor-pointer">
+                    <p class="text-[10px] text-emerald-600 font-semibold mt-1" id="group-discount-note"><i class="fa-solid fa-tag"></i> Diskon grup 5% otomatis aktif untuk min. 4 pax!</p>
+                </div>
+
+                <!-- Add-on Extras -->
+                <div class="border-t border-slate-100 pt-3">
+                    <label class="block font-bold text-slate-700 uppercase mb-2">Pilih Layanan Tambahan (Add-On Extras):</label>
+                    <div class="space-y-2">
+                        <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                            <span class="flex items-center gap-2 font-medium text-slate-700">
+                                <input type="checkbox" id="addon-drone" onchange="calculateTripCost()" class="rounded text-ocean-600 focus:ring-ocean-500 w-4 h-4">
+                                <span><i class="fa-solid fa-drone text-ocean-600 mr-1"></i> Dokumentasi Foto & Video Drone 4K</span>
+                            </span>
+                            <span class="font-bold text-slate-900">+Rp 350.000</span>
+                        </label>
+                        <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                            <span class="flex items-center gap-2 font-medium text-slate-700">
+                                <input type="checkbox" id="addon-gopro" onchange="calculateTripCost()" class="rounded text-ocean-600 focus:ring-ocean-500 w-4 h-4">
+                                <span><i class="fa-solid fa-camera text-ocean-600 mr-1"></i> Sewa Kamera GoPro Underwater</span>
+                            </span>
+                            <span class="font-bold text-slate-900">+Rp 200.000</span>
+                        </label>
+                        <label class="flex items-center justify-between p-2.5 rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 cursor-pointer">
+                            <span class="flex items-center gap-2 font-medium text-slate-700">
+                                <input type="checkbox" id="addon-pickup" onchange="calculateTripCost()" class="rounded text-ocean-600 focus:ring-ocean-500 w-4 h-4">
+                                <span><i class="fa-solid fa-plane-arrival text-ocean-600 mr-1"></i> VIP Airport Transfer Bandara Luwuk</span>
+                            </span>
+                            <span class="font-bold text-slate-900">+Rp 150.000</span>
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Total Estimation Display Box -->
+                <div class="bg-slate-900 text-white rounded-2xl p-4 space-y-1">
+                    <div class="flex justify-between text-slate-400 text-[11px]">
+                        <span>Estimasi Total Biaya:</span>
+                        <span id="discount-badge" class="text-lime-400 font-bold">Hemat Rp 0</span>
+                    </div>
+                    <div class="text-2xl font-extrabold text-lime-400" id="calc-total-price">
+                        Rp 3.700.000
+                    </div>
+                    <p class="text-[10px] text-slate-400">*Sudah termasuk pajak & seluruh rincian fasilitas standar paket.</p>
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Nama Pemesan</label>
+                    <input type="text" id="cust-name" required placeholder="Masukkan nama Anda" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-ocean-500 focus:outline-none">
+                </div>
+
+                <div>
+                    <label class="block font-bold text-slate-700 uppercase mb-1">Rencana Tanggal Berangkat</label>
+                    <input type="date" id="cust-date" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 focus:ring-2 focus:ring-ocean-500 focus:outline-none">
+                </div>
+
+                <button type="submit" class="w-full py-3 bg-green-600 hover:bg-green-700 text-white font-bold rounded-xl transition-colors shadow-lg flex items-center justify-center gap-2 text-sm">
+                    <i class="fa-brands fa-whatsapp text-lg"></i>
+                    <span>Kirim Pesanan ke WhatsApp CS</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal 2: Itinerary Detail Modal -->
+    <div id="itinerary-modal" class="fixed inset-0 z-50 hidden bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 sm:p-8 shadow-2xl relative my-8 animate-in fade-in zoom-in duration-200">
+            <button onclick="closeItineraryModal()" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 p-2">
+                <i class="fa-solid fa-xmark text-xl"></i>
+            </button>
+            <div id="itinerary-content">
+                <!-- Content injected dynamically -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ELEMEN 1C: Modal Video Teaser Player -->
+    <div id="video-modal" class="fixed inset-0 z-50 hidden bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-4">
+        <div class="bg-slate-900 rounded-3xl max-w-3xl w-full p-4 sm:p-6 shadow-2xl relative">
+            <div class="flex justify-between items-center mb-4 px-2">
+                <h4 class="text-white font-bold text-sm flex items-center gap-2">
+                    <i class="fa-solid fa-film text-amber-400"></i> Teaser Drone View Danau Paisu Pok & Luwuk
+                </h4>
+                <button onclick="closeVideoModal()" class="text-slate-400 hover:text-white p-1 text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div class="aspect-video w-full rounded-2xl overflow-hidden bg-black">
+                <iframe id="video-frame" class="w-full h-full" src="" title="Video Teaser Marijo Journey" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp CS Quick Widget -->
+    <div class="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
+        <!-- Floating Chat Popup Window -->
+        <div id="wa-chat-box" class="hidden w-80 bg-white rounded-2xl shadow-2xl border border-slate-100 overflow-hidden animate-in slide-in-from-bottom-5 duration-200">
+            <div class="bg-slate-900 text-white p-4 flex items-center gap-3">
+                <div class="relative">
+                    <img src="WhatsApp Image 2026-08-18 at 09.09.31_2.jpeg" class="w-10 h-10 rounded-full object-cover border-2 border-lime-400" onerror="this.onerror=null; this.src='https://placehold.co/100x100/0f172a/a3e635?text=CS';">
+                    <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-slate-900"></span>
+                </div>
+                <div>
+                    <h5 class="text-xs font-bold">CS Marijo Journey</h5>
+                    <p class="text-[10px] text-lime-400 flex items-center gap-1"><i class="fa-solid fa-circle text-[8px]"></i> Online • Balas &lt; 2 menit</p>
+                </div>
+            </div>
+            <div class="p-4 bg-slate-50 space-y-3 text-xs">
+                <div class="bg-white p-3 rounded-xl border border-slate-200 shadow-sm text-slate-700">
+                    Halo! 👋 Ada yang bisa kami bantu seputar rencana liburan Anda ke Danau Paisu Pok atau destinasi Luwuk Banggai?
+                </div>
+                <div class="space-y-1.5">
+                    <button onclick="quickWaMsg('Halo CS, saya mau tanya ketersediaan jadwal trip Danau Paisu Pok 3D2N')" class="w-full text-left p-2 bg-white hover:bg-ocean-50 border border-slate-200 rounded-lg text-slate-800 font-semibold text-[11px] flex items-center justify-between transition-colors">
+                        <span>🛥️ Tanya Trip Paisu Pok 3D2N</span>
+                        <i class="fa-solid fa-chevron-right text-[10px] text-ocean-600"></i>
+                    </button>
+                    <button onclick="quickWaMsg('Halo CS, saya mau tanya sewa mobil + driver di kota Luwuk')" class="w-full text-left p-2 bg-white hover:bg-ocean-50 border border-slate-200 rounded-lg text-slate-800 font-semibold text-[11px] flex items-center justify-between transition-colors">
+                        <span>🚗 Sewa Mobil & Driver Luwuk</span>
+                        <i class="fa-solid fa-chevron-right text-[10px] text-ocean-600"></i>
+                    </button>
+                    <button onclick="quickWaMsg('Halo CS, saya ingin minta proposal Custom Tour Rombongan')" class="w-full text-left p-2 bg-white hover:bg-ocean-50 border border-slate-200 rounded-lg text-slate-800 font-semibold text-[11px] flex items-center justify-between transition-colors">
+                        <span>📋 Request Custom Group Trip</span>
+                        <i class="fa-solid fa-chevron-right text-[10px] text-ocean-600"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Floating Trigger Button -->
+        <button onclick="toggleWaChatBox()" class="pulse-online bg-green-500 hover:bg-green-600 text-white p-4 rounded-full shadow-2xl flex items-center justify-center gap-2 font-bold text-sm transition-all cursor-pointer">
+            <i class="fa-brands fa-whatsapp text-2xl"></i>
+            <span class="hidden sm:inline">Chat CS Online</span>
+        </button>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Currency Exchange Logic
+        const exchangeRates = {
+            IDR: { rate: 1, symbol: 'Rp ', pos: 'prefix' },
+            USD: { rate: 0.000062, symbol: ' $', pos: 'prefix' },
+            EUR: { rate: 0.000057, symbol: ' €', pos: 'prefix' }
+        };
+
+        let currentCurrency = 'IDR';
+
+        function changeCurrency(curr) {
+            currentCurrency = curr;
+            const config = exchangeRates[curr];
+            const tags = document.querySelectorAll('.price-tag');
+            
+            tags.forEach(tag => {
+                const basePrice = parseFloat(tag.getAttribute('data-base-price'));
+                if (!isNaN(basePrice)) {
+                    const converted = Math.round(basePrice * config.rate);
+                    if (curr === 'IDR') {
+                        tag.innerText = `Rp ${basePrice.toLocaleString('id-ID')}`;
+                    } else {
+                        tag.innerText = `${config.symbol}${converted.toLocaleString('en-US')}`;
+                    }
+                }
+            });
+            calculateTripCost();
+        }
+
+        // Multi-language Translation dictionary
+        const translations = {
+            id: {
+                nav_home: "Beranda",
+                nav_about: "Tentang Kami",
+                nav_destinations: "Destinasi Map",
+                nav_packages: "Paket Tour",
+                nav_whyus: "Mengapa Kami",
+                nav_gallery: "Galeri",
+                nav_faq: "FAQ",
+                btn_contact: "Hubungi Kami",
+                btn_calc: "Hitung Estimasi"
+            },
+            en: {
+                nav_home: "Home",
+                nav_about: "About Us",
+                nav_destinations: "Destinations Map",
+                nav_packages: "Packages",
+                nav_whyus: "Why Us",
+                nav_gallery: "Gallery",
+                nav_faq: "FAQ",
+                btn_contact: "Contact Us",
+                btn_calc: "Price Estimator"
+            }
+        };
+
+        function changeLanguage(lang) {
+            const elements = document.querySelectorAll('[data-i18n]');
+            elements.forEach(el => {
+                const key = el.getAttribute('data-i18n');
+                if (translations[lang] && translations[lang][key]) {
+                    el.innerText = translations[lang][key];
+                }
+            });
+        }
+
+        // Trip Calculator logic
+        function calculateTripCost() {
+            const pkgSelect = document.getElementById('calc-package');
+            const basePrice = parseFloat(pkgSelect.value) || 0;
+            const pax = parseInt(document.getElementById('calc-pax').value) || 1;
+            
+            document.getElementById('pax-val-display').innerText = `${pax} Orang`;
+
+            let subtotal = basePrice * pax;
+            let discount = 0;
+
+            const discountNote = document.getElementById('group-discount-note');
+            if (pax >= 8) {
+                discount = subtotal * 0.10;
+                discountNote.innerText = "🎉 Diskon Grup 10% Aktif! (Min. 8 orang)";
+            } else if (pax >= 4) {
+                discount = subtotal * 0.05;
+                discountNote.innerText = "🏷️ Diskon Grup 5% Aktif! (Min. 4 orang)";
+            } else {
+                discountNote.innerText = "💡 Tambah pax hingga min. 4 orang untuk dapatkan Diskon 5%!";
+            }
+
+            subtotal -= discount;
+
+            if (document.getElementById('addon-drone').checked) subtotal += 350000;
+            if (document.getElementById('addon-gopro').checked) subtotal += 200000;
+            if (document.getElementById('addon-pickup').checked) subtotal += 150000;
+
+            const rateConfig = exchangeRates[currentCurrency];
+            const convertedTotal = Math.round(subtotal * rateConfig.rate);
+            const convertedDiscount = Math.round(discount * rateConfig.rate);
+
+            if (currentCurrency === 'IDR') {
+                document.getElementById('calc-total-price').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
+                document.getElementById('discount-badge').innerText = discount > 0 ? `Hemat Rp ${discount.toLocaleString('id-ID')}` : `Tanpa Diskon`;
+            } else {
+                document.getElementById('calc-total-price').innerText = `${rateConfig.symbol}${convertedTotal.toLocaleString('en-US')}`;
+                document.getElementById('discount-badge').innerText = discount > 0 ? `Save ${rateConfig.symbol}${convertedDiscount.toLocaleString('en-US')}` : `Standard Rate`;
+            }
+        }
+
+        // Itinerary Data Structure
+        const itineraryData = {
+            paisupok: {
+                title: "Exotic Banggai & Paisu Pok 3D2N",
+                sub: "Rencana Perjalanan 3 Hari 2 Malam",
+                days: [
+                    { day: "Hari 1", title: "Penjemputan Luwuk & Penyeberangan ke Salakan", detail: "Penjemputan di Bandara Luwuk (LUW) / Hotel. Perjalanan menuju Pelabuhan dan penyeberangan ke Salakan Banggai Kepulauan. Check-in penginapan & makan malam seafood lokal." },
+                    { day: "Hari 2", title: "Eksplorasi Danau Paisu Pok & Danau Paisu Batango", detail: "Full day tour ke Danau Paisu Pok (berenang, mendayung perahu kaca, foto underwater) & Paisu Batango. Makan siang ikan bakar khas Luk Panenteng. Sore hari santai di Pantai Liang." },
+                    { day: "Hari 3", title: "Berburu Oleh-Oleh Khas Luwuk & Transfer Out", detail: "Sarapan pagi, penyeberangan kembali ke Kota Luwuk. Singgah di toko cenderamata khas Luwuk Banggai (Kain Tenun Nambo, Bawang Goreng Luwuk) lalu transfer ke Bandara Luwuk." }
+                ],
+                includes: ["Transportasi Mobil AC & Speedboat", "Penginapan 2 Malam", "Makan 7x Sesuai Program", "Tiket Masuk Semua Wisata", "Local Guide & Kapten Perahu"],
+                excludes: ["Tiket Pesawat ke/dari Luwuk", "Pengeluaran Pribadi & Tips"]
+            },
+            pulaudua: {
+                title: "One Day Tour Pulau Dua Balantak",
+                sub: "Rencana Perjalanan Full Day",
+                days: [
+                    { day: "07:00 - 09:30", title: "Perjalanan Darat Luwuk ke Kecamatan Balantak", detail: "Penjemputan di hotel Luwuk dan perjalanan menikmati pemandangan pesisir pantai Balantak." },
+                    { day: "10:00 - 15:00", title: "Trekking Puncak & Snorkeling Pulau Dua", detail: "Penyeberangan perahu 10 menit ke Pulau Dua. Trekking ke puncak bukit ikonik, foto-foto, makan siang seafood, dan snorkeling spot terumbu karang." },
+                    { day: "16:00 - 18:30", title: "Kembali ke Kota Luwuk", detail: "Perjalanan kembali ke Luwuk. Makan malam khas dan drop kembali ke hotel." }
+                ],
+                includes: ["Mobil AC + Driver Local", "Perahu Antar-Jemput Pulau Dua", "Lunch Box Seafood", "Alat Snorkeling", "Pelampung & Tiket Masuk"],
+                excludes: ["Pengeluaran Pribadi"]
+            },
+            citytour: {
+                title: "Luwuk City & Air Terjun Tour",
+                sub: "Rencana Perjalanan Wisata Kota",
+                days: [
+                    { day: "08:30 - 12:00", title: "Eksplorasi Air Terjun Salodic & Air Terjun Piala", detail: "Menikmati kesejukan air terjun bertingkat Salodic dan jernihnya Air Terjun Piala." },
+                    { day: "13:00 - 17:00", title: "Pantai Kilo 5 & Kuliner Khas", detail: "Makan siang kuliner khas Luwuk di tepi Pantai Kilo 5." },
+                    { day: "18:30 - 21:00", title: "Night View Bukit Keles & Ruang Rumpun Lalong", detail: "Menikmati pemandangan city light Kota Luwuk dari puncak Bukit Keles sambil menikmati kopi/teh." }
+                ],
+                includes: ["Mobil Private Full AC + Driver", "BBM & Parkir Wisata", "Tiket Masuk Lokasi Wisata", "Air Mineral"],
+                excludes: ["Makan Pribadi"]
+            }
+        };
+
+        function showItinerary(key) {
+            const data = itineraryData[key];
+            if (!data) return;
+
+            let html = `
+                <div class="mb-4 border-b border-slate-100 pb-3">
+                    <span class="text-[10px] uppercase font-bold text-ocean-600 bg-ocean-50 px-2.5 py-1 rounded-full">Itinerary Program</span>
+                    <h3 class="text-2xl font-bold text-slate-900 mt-1">${data.title}</h3>
+                    <p class="text-xs text-slate-500">${data.sub}</p>
+                </div>
+                <div class="space-y-3 mb-6">
+            `;
+
+            data.days.forEach(item => {
+                html += `
+                    <div class="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="bg-ocean-600 text-white text-[10px] font-bold px-2 py-0.5 rounded">${item.day}</span>
+                            <h4 class="font-bold text-slate-800">${item.title}</h4>
+                        </div>
+                        <p class="text-slate-600 text-[11px] leading-relaxed">${item.detail}</p>
+                    </div>
+                `;
+            });
+
+            html += `
+                </div>
+                <div class="grid grid-cols-2 gap-4 text-xs bg-slate-100 p-4 rounded-xl">
+                    <div>
+                        <h5 class="font-bold text-emerald-700 mb-1 flex items-center gap-1"><i class="fa-solid fa-circle-check"></i> Termasuk (Includes):</h5>
+                        <ul class="space-y-1 text-[11px] text-slate-600">
+                            ${data.includes.map(i => `<li>• ${i}</li>`).join('')}
+                        </ul>
+                    </div>
+                    <div>
+                        <h5 class="font-bold text-rose-700 mb-1 flex items-center gap-1"><i class="fa-solid fa-circle-xmark"></i> Tidak Termasuk:</h5>
+                        <ul class="space-y-1 text-[11px] text-slate-600">
+                            ${data.excludes.map(e => `<li>• ${e}</li>`).join('')}
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-6 flex justify-end">
+                    <button onclick="closeItineraryModal()" class="px-5 py-2 bg-slate-800 text-white font-bold text-xs rounded-xl hover:bg-slate-900">Tutup</button>
+                </div>
+            `;
+
+            document.getElementById('itinerary-content').innerHTML = html;
+            document.getElementById('itinerary-modal').classList.remove('hidden');
+        }
+
+        function closeItineraryModal() {
+            document.getElementById('itinerary-modal').classList.add('hidden');
+        }
+
+        // Checklist update logic
+        function updateChecklist() {
+            const items = document.querySelectorAll('.checklist-item');
+            let checked = 0;
+            items.forEach(item => {
+                if (item.checked) checked++;
+            });
+            document.getElementById('checklist-progress').innerText = `${checked}/${items.length}`;
+            const percentage = (checked / items.length) * 100;
+            document.getElementById('checklist-bar').style.width = `${percentage}%`;
+        }
+
+        // Video Teaser Modal Handler
+        function openVideoModal() {
+            // Sample Embed YouTube Video (Drone View Luwuk / Paisu Pok)
+            document.getElementById('video-frame').src = "https://www.youtube.com/embed/dQw4w9WgXcQ?autoplay=1";
+            document.getElementById('video-modal').classList.remove('hidden');
+        }
+
+        function closeVideoModal() {
+            document.getElementById('video-frame').src = "";
+            document.getElementById('video-modal').classList.add('hidden');
+        }
+
+        // B2B Corporate Form Submission via WhatsApp
+        function sendCorporateB2B(e) {
+            e.preventDefault();
+            const company = document.getElementById('b2b-company').value;
+            const pic = document.getElementById('b2b-pic').value;
+            const pax = document.getElementById('b2b-pax').value;
+            const month = document.getElementById('b2b-month').value;
+            const notes = document.getElementById('b2b-notes').value || "Tidak ada";
+
+            const phone = "6282355526882";
+            let msg = `*REQUEST PROPOSAL B2B / OUTING ROMBONGAN - MARIJO JOURNEY*\n\n`;
+            msg += `*Nama Instansi/Group:* ${company}\n`;
+            msg += `*PIC Contact:* ${pic}\n`;
+            msg += `*Jumlah Peserta:* ${pax} Orang\n`;
+            msg += `*Bulan Keberangkatan:* ${month}\n`;
+            msg += `*Catatan/Request Khusus:* ${notes}\n\n`;
+            msg += `Mohon dibuatkan proposal & rincian penawaran resmi (LPJ/Invoice). Terima kasih!`;
+
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(msg)}`, '_blank');
+        }
+
+        // WhatsApp Booking logic
+        function sendWhatsAppBooking(e) {
+            e.preventDefault();
+            const name = document.getElementById('cust-name').value;
+            const date = document.getElementById('cust-date').value;
+            const pax = document.getElementById('calc-pax').value;
+            
+            const pkgSelect = document.getElementById('calc-package');
+            const selectedOpt = pkgSelect.options[pkgSelect.selectedIndex];
+            const pkgName = selectedOpt.getAttribute('data-name');
+            
+            const totalPrice = document.getElementById('calc-total-price').innerText;
+
+            let addOns = [];
+            if (document.getElementById('addon-drone').checked) addOns.push("Foto/Video Drone 4K");
+            if (document.getElementById('addon-gopro').checked) addOns.push("Kamera GoPro Underwater");
+            if (document.getElementById('addon-pickup').checked) addOns.push("Airport Transfer Luwuk");
+
+            const phone = "6282355526882";
+            
+            let message = `*PEMESANAN TOUR - MARIJO JOURNEY*\n\n`;
+            message += `*Nama:* ${name}\n`;
+            message += `*Paket Wisata:* ${pkgName}\n`;
+            message += `*Jumlah Peserta:* ${pax} Orang\n`;
+            message += `*Tanggal Trip:* ${date}\n`;
+            if (addOns.length > 0) {
+                message += `*Layanan Add-On:* ${addOns.join(', ')}\n`;
+            }
+            message += `*Estimasi Total Cost:* ${totalPrice}\n\n`;
+            message += `Mohon konfirmasi ketersediaan slot dan prosedur pembayaran DP. Terima kasih!`;
+
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(message)}`, '_blank');
+            closeBookingModal();
+        }
+
+        // Countdown Timer Logic (Targeting upcoming weekend trip)
+        function initCountdown() {
+            const targetDate = new Date();
+            targetDate.setDate(targetDate.getDate() + 3); // 3 days from now
+            
+            setInterval(() => {
+                const now = new Date().getTime();
+                const diff = targetDate - now;
+
+                if (diff > 0) {
+                    const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+                    const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                    const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                    const secs = Math.floor((diff % (1000 * 60)) / 1000);
+
+                    document.getElementById('cd-days').innerText = String(days).padStart(2, '0');
+                    document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
+                    document.getElementById('cd-mins').innerText = String(mins).padStart(2, '0');
+                    document.getElementById('cd-secs').innerText = String(secs).padStart(2, '0');
+                }
+            }, 1000);
+        }
+
+        // Leaflet Map Initialization Function
+        function initLeafletMap() {
+            // Centered near Luwuk & Banggai Archipelago
+            const map = L.map('interactive-map').setView([-1.05, 123.05], 9);
+
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                maxZoom: 18,
+                attribution: '© OpenStreetMap'
+            }).addTo(map);
+
+            const spots = [
+                {
+                    name: "Danau Paisu Pok",
+                    coords: [-1.2825, 123.3610],
+                    desc: "Danau air tawar super jernih sebekas kaca di Banggai Kepulauan.",
+                    tag: "Super Hits 3D2N"
+                },
+                {
+                    name: "Pulau Dua Balantak",
+                    coords: [-0.8845, 123.3550],
+                    desc: "Trekking bukit hijau berdampingan dengan laut biru jernih.",
+                    tag: "1 Day Trip"
+                },
+                {
+                    name: "Air Terjun Salodic & Piala",
+                    coords: [-0.8400, 122.8800],
+                    desc: "Kompleks air terjun bertingkat hijau toska di tengah hutan asri.",
+                    tag: "City Tour"
+                },
+                {
+                    name: "Bukit Keles & Kota Luwuk",
+                    coords: [-0.9480, 122.7900],
+                    desc: "Pemandangan panorama laut dan city light Kota Luwuk dari puncak.",
+                    tag: "City Night View"
+                }
+            ];
+
+            spots.forEach(spot => {
+                const marker = L.marker(spot.coords).addTo(map);
+                marker.bindPopup(`
+                    <div class="p-2 text-slate-800">
+                        <span class="bg-ocean-600 text-white font-bold text-[9px] px-2 py-0.5 rounded-full uppercase">${spot.tag}</span>
+                        <h4 class="font-bold text-sm mt-1 mb-0.5">${spot.name}</h4>
+                        <p class="text-xs text-slate-600 m-0">${spot.desc}</p>
+                        <button onclick="document.getElementById('paket').scrollIntoView({behavior:'smooth'})" class="mt-2 text-xs bg-ocean-600 text-white font-bold px-3 py-1 rounded-lg w-full text-center">Pesan Paket</button>
+                    </div>
+                `);
+            });
+        }
+
+        // Mobile drawer toggle
+        const menuBtn = document.getElementById('menu-btn');
+        const mobileMenu = document.getElementById('mobile-menu');
+        menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
+
+        function filterPackageCategory(category) {
+            const buttons = document.querySelectorAll('.pkg-btn');
+            buttons.forEach(btn => {
+                btn.classList.remove('bg-ocean-600', 'text-white');
+                btn.classList.add('bg-slate-100', 'text-slate-600');
+            });
+
+            if (event && event.target) {
+                event.target.classList.remove('bg-slate-100', 'text-slate-600');
+                event.target.classList.add('bg-ocean-600', 'text-white');
+            }
+
+            const cards = document.querySelectorAll('.pkg-card');
+            cards.forEach(card => {
+                if (category === 'all' || card.classList.contains(category)) {
+                    card.classList.remove('hidden');
+                } else {
+                    card.classList.add('hidden');
+                }
+            });
+        }
+
+        function filterPackages() {
+            const dest = document.getElementById('search-destination').value;
+            document.getElementById('paket').scrollIntoView({ behavior: 'smooth' });
+
+            if (dest === 'paisupok') filterPackageCategory('banggai');
+            else if (dest === 'pulaudua') filterPackageCategory('oneday');
+            else if (dest === 'citytour' || dest === 'salodic') filterPackageCategory('oneday');
+            else filterPackageCategory('all');
+        }
+
+        function toggleFaq(btn) {
+            const answer = btn.nextElementSibling;
+            const icon = btn.querySelector('i');
+            answer.classList.toggle('hidden');
+            icon.classList.toggle('rotate-180');
+        }
+
+        function openBookingModal(pkgName, basePrice) {
+            if (pkgName && basePrice) {
+                const pkgSelect = document.getElementById('calc-package');
+                for (let i = 0; i < pkgSelect.options.length; i++) {
+                    if (pkgSelect.options[i].value == basePrice) {
+                        pkgSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+            calculateTripCost();
+            document.getElementById('booking-modal').classList.remove('hidden');
+        }
+
+        function closeBookingModal() {
+            document.getElementById('booking-modal').classList.add('hidden');
+        }
+
+        function toggleWaChatBox() {
+            document.getElementById('wa-chat-box').classList.toggle('hidden');
+        }
+
+        function quickWaMsg(text) {
+            const phone = "6282355526882";
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        // Initialize features on page load
+        window.onload = function() {
+            calculateTripCost();
+            initCountdown();
+            initLeafletMap();
+            updateChecklist();
+        };
+    </script>
+</body>
+</html>
